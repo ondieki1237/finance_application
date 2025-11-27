@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">M.S.O</string>
+    <string name="title_activity_main">M.S.O</string>
+    <string name="package_name">codewithseth.co.ke</string>
+    <string name="custom_url_scheme">codewithseth.co.ke</string>
+</resources>

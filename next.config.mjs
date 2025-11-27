@@ -6,6 +6,10 @@ const nextConfig = {
   images: {
     unoptimized: true,
   },
+  output: 'export',
+  turbopack: {
+    root: './',
+  },
 }
 
 export default nextConfig
