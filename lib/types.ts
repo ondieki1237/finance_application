@@ -51,7 +51,7 @@ export interface Transaction {
   recipient_identifier: string
   recipient_name: string
   amount: number
-  type: "debit" | "credit"
+  type: "debit" | "credit" | "income" | "expense"
   transaction_date: string
   purpose?: string
   category: TransactionCategory

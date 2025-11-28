@@ -9,7 +9,7 @@ import type { Transaction } from "@/lib/types"
 const COLORS = ["#0D9488", "#EA580C", "#8B5CF6", "#EC4899", "#F59E0B"]
 
 export default function AnalyticsPage() {
-  const { data: transactions = [] } = useSWR<Transaction[]>("/api/transactions", async (url) =>
+  const { data: transactions = [] } = useSWR<Transaction[]>("/api/transactions", async (url: string) =>
     fetch(url).then((r) => r.json()),
   )
 
@@ -17,7 +17,7 @@ export default function AnalyticsPage() {
     const grouped: Record<string, number> = {}
 
     transactions.forEach((tx) => {
-      if (tx.type === "debit") {
+      if (tx.type === "debit" || tx.type === "expense") {
         grouped[tx.category] = (grouped[tx.category] || 0) + tx.amount
       }
     })
@@ -42,9 +42,9 @@ export default function AnalyticsPage() {
         months[monthKey] = { income: 0, expense: 0 }
       }
 
-      if (tx.type === "debit") {
+      if (tx.type === "debit" || tx.type === "expense") {
         months[monthKey].expense += tx.amount
-      } else {
+      } else if (tx.type === "credit" || tx.type === "income") {
         months[monthKey].income += tx.amount
       }
     })
@@ -134,6 +134,69 @@ export default function AnalyticsPage() {
                   <div className="w-4 h-4 rounded-full" style={{ backgroundColor: COLORS[i % COLORS.length] }} />
                   <span className="text-sm text-gray-600">{item.name}</span>
                   <span className="text-sm font-semibold text-gray-900 ml-auto">KES {item.value.toLocaleString()}</span>
+                </div>
+              ))}
+            </div>
+          </motion.div>
+        )}
+
+        {/* Income Breakdown */}
+        {transactions.some(tx => tx.type === "income") && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+            className="bg-white rounded-2xl p-6 border border-gray-100"
+          >
+            <h3 className="font-bold text-gray-900 mb-4">Income Breakdown</h3>
+            <div className="h-64 flex items-center justify-center">
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie
+                    data={Object.entries(
+                      transactions
+                        .filter(tx => tx.type === "income")
+                        .reduce((acc, tx) => {
+                          acc[tx.category] = (acc[tx.category] || 0) + tx.amount
+                          return acc
+                        }, {} as Record<string, number>)
+                    ).map(([name, value]) => ({ name, value }))}
+                    cx="50%"
+                    cy="50%"
+                    innerRadius={50}
+                    outerRadius={80}
+                    paddingAngle={4}
+                    dataKey="value"
+                  >
+                    {Object.keys(
+                      transactions
+                        .filter(tx => tx.type === "income")
+                        .reduce((acc, tx) => {
+                          acc[tx.category] = (acc[tx.category] || 0) + tx.amount
+                          return acc
+                        }, {} as Record<string, number>)
+                    ).map((_, index) => (
+                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                    ))}
+                  </Pie>
+                  <Tooltip formatter={(value) => `KES ${Number(value).toLocaleString()}`} />
+                </PieChart>
+              </ResponsiveContainer>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3 mt-6">
+              {Object.entries(
+                transactions
+                  .filter(tx => tx.type === "income")
+                  .reduce((acc, tx) => {
+                    acc[tx.category] = (acc[tx.category] || 0) + tx.amount
+                    return acc
+                  }, {} as Record<string, number>)
+              ).map(([name, value], i) => (
+                <div key={name} className="flex items-center gap-2">
+                  <div className="w-4 h-4 rounded-full" style={{ backgroundColor: COLORS[i % COLORS.length] }} />
+                  <span className="text-sm text-gray-600">{name}</span>
+                  <span className="text-sm font-semibold text-gray-900 ml-auto">KES {value.toLocaleString()}</span>
                 </div>
               ))}
             </div>

@@ -14,6 +14,18 @@ export const authApi = {
     if (!res.ok) throw new Error("Invalid credentials")
     return res.json()
   },
+  register: async (data: any) => {
+    const res = await fetch(`${API_BASE}/auth/register`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
+    })
+    if (!res.ok) {
+      const errorData = await res.json()
+      throw new Error(errorData.message || "Registration failed")
+    }
+    return res.json()
+  },
 }
 
 export const api = {

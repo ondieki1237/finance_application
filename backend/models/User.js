@@ -30,6 +30,10 @@ const userSchema = new mongoose.Schema({
     type: String,
     default: "USD",
   },
+  incomeSources: {
+    type: [String],
+    default: [],
+  },
   createdAt: {
     type: Date,
     default: Date.now,

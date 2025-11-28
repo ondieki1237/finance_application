@@ -21,6 +21,7 @@ exports.register = async (req, res) => {
       email,
       password,
       phone,
+      incomeSources: req.body.incomeSources || [],
     })
 
     await user.save()
