@@ -8,6 +8,14 @@ RECREATE=0
 if [[ "${1:-}" == "--recreate" ]]; then
   RECREATE=1
   echo "⚠️  --recreate flag detected: Will remove and recreate android folder"
+  echo "⚠️  WARNING: This will delete custom AndroidManifest.xml changes!"
+  echo "⚠️  You will need to manually re-add SMS permissions after recreation."
+  read -p "Continue? (y/N): " -n 1 -r
+  echo
+  if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+    echo "❌ Build cancelled."
+    exit 1
+  fi
 fi
 
 # Optional: Check for uncommitted changes
@@ -66,8 +74,26 @@ if [ ! -f "public/index.html" ]; then
 fi
 
 echo "🔄 Syncing Capacitor with Android..."
+
+# Backup AndroidManifest.xml to preserve custom permissions
+MANIFEST_PATH="android/app/src/main/AndroidManifest.xml"
+MANIFEST_BACKUP="android/app/src/main/AndroidManifest.xml.backup"
+
+if [ -f "$MANIFEST_PATH" ]; then
+  echo "💾 Backing up AndroidManifest.xml..."
+  cp "$MANIFEST_PATH" "$MANIFEST_BACKUP"
+fi
+
 npx cap copy android
 npx cap sync android
+
+# Restore AndroidManifest.xml if backup exists
+if [ -f "$MANIFEST_BACKUP" ]; then
+  echo "♻️  Restoring AndroidManifest.xml with custom permissions..."
+  cp "$MANIFEST_BACKUP" "$MANIFEST_PATH"
+  rm "$MANIFEST_BACKUP"
+  echo "✅ AndroidManifest.xml restored successfully"
+fi
 
 # Ensure Android SDK is configured for Gradle builds (writes android/local.properties if missing)
 check_android_sdk() {
