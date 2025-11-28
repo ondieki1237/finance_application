@@ -1,10 +1,11 @@
 "use client"
 
 import type React from "react"
-import { usePathname } from "next/navigation"
+import { usePathname, useRouter } from "next/navigation"
 import Link from "next/link"
 import { motion } from "framer-motion"
 import { Home, ArrowRightLeft, Users, BarChart3, Scan } from "lucide-react"
+import { useEffect, useState } from "react"
 
 const LOGO_URL =
   "https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/692847a65ee9f54f23c65416/af2217181_smo-logo.png"
@@ -30,6 +31,21 @@ export default function MainLayout({
   children: React.ReactNode
 }) {
   const pathname = usePathname()
+  const router = useRouter()
+  const [authorized, setAuthorized] = useState(false)
+
+  useEffect(() => {
+    const token = localStorage.getItem("jwt")
+    if (!token) {
+      router.push("/login")
+    } else {
+      setAuthorized(true)
+    }
+  }, [router])
+
+  if (!authorized) {
+    return null // Or a loading spinner
+  }
 
   const isActive = (href: string) => {
     if (href === "/") return pathname === "/"
@@ -53,11 +69,10 @@ export default function MainLayout({
                   <Link key={item.href} href={item.href} className="flex flex-col items-center -mt-6">
                     <motion.div
                       whileTap={{ scale: 0.95 }}
-                      className={`w-14 h-14 rounded-full flex items-center justify-center shadow-lg ${
-                        active
-                          ? "bg-gradient-to-br from-orange-500 to-orange-600"
-                          : "bg-gradient-to-br from-teal-500 to-teal-600"
-                      }`}
+                      className={`w-14 h-14 rounded-full flex items-center justify-center shadow-lg ${active
+                        ? "bg-gradient-to-br from-orange-500 to-orange-600"
+                        : "bg-gradient-to-br from-teal-500 to-teal-600"
+                        }`}
                     >
                       <Icon className="w-6 h-6 text-white" />
                     </motion.div>

@@ -1,23 +1,42 @@
 import { useEffect } from "react"
-import { Capacitor } from "@capacitor/core"
-// You need to install a plugin like @capacitor-community/sms for real SMS access
-// import { SMS } from '@capacitor-community/sms'
+import { filterFinancialMessages } from "@/lib/sms-parser"
 
 export default function SMSReader({ onMessages }: { onMessages: (messages: any[]) => void }) {
   useEffect(() => {
-    async function fetchSMS() {
-      if (Capacitor.isNativePlatform()) {
-        // Request permission (pseudo-code, replace with actual plugin usage)
-        // const permission = await SMS.requestPermission()
-        // if (permission.granted) {
-        //   const messages = await SMS.list({ max: 100 })
-        //   onMessages(messages)
-        // }
+    const fetchSMS = async () => {
+      if ((window as any).SMS) {
+        const sms = (window as any).SMS
+
+        sms.requestPermission(
+          () => {
+            // Permission granted
+            const filter = {
+              box: "inbox",
+              maxCount: 200, // Increased fetch limit
+            }
+
+            sms.listSMS(
+              filter,
+              (messages: any[]) => {
+                console.log("SMS fetched raw:", messages.length)
+                const parsedMessages = filterFinancialMessages(messages)
+                console.log("SMS parsed:", parsedMessages.length)
+                onMessages(parsedMessages)
+              },
+              (err: any) => {
+                console.error("Error listing SMS:", err)
+              }
+            )
+          },
+          (err: any) => {
+            console.error("SMS permission denied:", err)
+          }
+        )
       } else {
-        // Not on mobile, cannot read SMS
-        onMessages([])
+        console.log("SMS plugin not available")
       }
     }
+
     fetchSMS()
   }, [onMessages])
 

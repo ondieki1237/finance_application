@@ -1,4 +1,5 @@
 #!/bin/bash
+echo "Build the App: You must run this on an Android device (npx cap run android). It will not work in the browser."
 set -euo pipefail
 IFS=$'\n\t'
 
