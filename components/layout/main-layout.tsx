@@ -38,10 +38,10 @@ export default function MainLayout({
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <main className="max-w-lg mx-auto bg-gray-50 min-h-screen pb-24">{children}</main>
+      <main className="container mx-auto px-4 py-6 max-w-7xl">{children}</main>
 
-      {/* Mobile Bottom Navigation */}
-      <nav className="fixed bottom-0 left-0 right-0 z-50">
+      {/* Responsive Navigation */}
+      <nav className="fixed bottom-0 left-0 right-0 z-50 md:hidden">
         <div className="max-w-lg mx-auto">
           <div className="bg-white border-t border-gray-100 px-2 pt-2 pb-2 flex items-end justify-around">
             {navItems.map((item) => {

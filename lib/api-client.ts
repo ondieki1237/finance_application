@@ -2,7 +2,19 @@
 
 import type { Transaction, Recipient, Subscription, Alert } from "./types"
 
-const API_BASE = "http://localhost:5000/api"
+const API_BASE = "https://finance.codewithseth.co.ke/api"
+
+export const authApi = {
+  login: async (email: string, password: string) => {
+    const res = await fetch(`${API_BASE}/auth/login`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password }),
+    })
+    if (!res.ok) throw new Error("Invalid credentials")
+    return res.json()
+  },
+}
 
 export const api = {
   transactions: {

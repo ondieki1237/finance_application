@@ -1,7 +1,9 @@
 "use client"
 
 import { useRouter } from "next/navigation"
-import { useState } from "react"
+import { useState, useEffect } from "react"
+import { authApi } from "@/lib/api-client"
+
 
 export default function LoginPage() {
   const router = useRouter()
@@ -9,14 +11,25 @@ export default function LoginPage() {
   const [password, setPassword] = useState("")
   const [error, setError] = useState("")
 
+  useEffect(() => {
+    const token = localStorage.getItem("jwt")
+    if (token) {
+      router.push("/dashboard")
+    }
+  }, [router])
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    // TODO: Replace with real authentication logic
-    if (email && password) {
-  // Simulate login success
-  router.push("/dashboard")
-    } else {
+    if (!email || !password) {
       setError("Please enter email and password.")
+      return
+    }
+    try {
+      const result = await authApi.login(email, password)
+      localStorage.setItem("jwt", result.token)
+      router.push("/dashboard")
+    } catch (err: any) {
+      setError(err.message || "Login failed")
     }
   }
 
